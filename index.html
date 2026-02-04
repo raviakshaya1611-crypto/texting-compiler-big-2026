@@ -1,205 +1,173 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-<meta charset="UTF-8">
-<title>Texting Compiler of The Big 2026</title>
+  <meta charset="UTF-8" />
+  <title>Texting Compiler of The Big 2026</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
 
-<style>
-body {
-  margin: 0;
-  height: 100vh;
-  background: linear-gradient(135deg, #ffb6c1, #b3003b);
-  display: flex;
-  justify-content: center;
-  align-items: center;
-  font-family: "Poppins", sans-serif;
-}
+  <style>
+    body {
+      margin: 0;
+      font-family: "Arial Rounded MT Bold", Arial, sans-serif;
+      background: linear-gradient(180deg, #ffb6c1, #ff69b4);
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      height: 100vh;
+    }
 
-.card {
-  width: 380px;
-  height: 650px;
-  background: #fff0f5;
-  border-radius: 30px;
-  box-shadow: 0 20px 60px rgba(0,0,0,0.3);
-  padding: 20px;
-  display: none;
-  flex-direction: column;
-}
+    .app {
+      background: #fff0f5;
+      width: 360px;
+      height: 520px;
+      border-radius: 24px;
+      box-shadow: 0 10px 30px rgba(0,0,0,0.2);
+      display: flex;
+      flex-direction: column;
+      overflow: hidden;
+    }
 
-.login {
-  display: flex;
-}
+    header {
+      padding: 14px;
+      text-align: center;
+      font-weight: bold;
+      color: #c2185b;
+      background: #ffe4ec;
+    }
 
-h1 {
-  text-align: center;
-  color: #b3003b;
-  font-size: 22px;
-}
+    #messages {
+      flex: 1;
+      padding: 12px;
+      overflow-y: auto;
+    }
 
-input {
-  border: none;
-  padding: 12px;
-  border-radius: 20px;
-  margin-top: 10px;
-  font-size: 14px;
-}
+    .msg {
+      margin-bottom: 10px;
+      max-width: 75%;
+      padding: 8px 12px;
+      border-radius: 14px;
+      font-size: 14px;
+    }
 
-button {
-  margin-top: 15px;
-  padding: 12px;
-  border-radius: 20px;
-  border: none;
-  background: #ff3366;
-  color: white;
-  font-size: 16px;
-  cursor: pointer;
-}
+    .me {
+      background: #ff69b4;
+      color: white;
+      margin-left: auto;
+    }
 
-button:hover {
-  background: #e6004c;
-}
+    .him {
+      background: #ffe4ec;
+      color: #880e4f;
+      margin-right: auto;
+    }
 
-.error {
-  text-align: center;
-  color: red;
-  margin-top: 10px;
-}
+    footer {
+      display: flex;
+      padding: 10px;
+      gap: 6px;
+      background: #ffe4ec;
+    }
 
-.chat {
-  flex: 1;
-  overflow-y: auto;
-  padding: 10px;
-}
+    input {
+      flex: 1;
+      border-radius: 20px;
+      border: none;
+      padding: 10px;
+      outline: none;
+    }
 
-.msg {
-  max-width: 75%;
-  padding: 10px;
-  margin: 8px 0;
-  border-radius: 15px;
-  position: relative;
-}
-
-.me {
-  background: #ffccd5;
-  align-self: flex-end;
-}
-
-.them {
-  background: #ffe6eb;
-  align-self: flex-start;
-}
-
-.seen {
-  font-size: 10px;
-  text-align: right;
-  color: gray;
-}
-
-.controls {
-  display: flex;
-  gap: 5px;
-}
-
-.controls input {
-  flex: 1;
-}
-
-.spotify {
-  font-size: 12px;
-  text-align: center;
-  color: #b3003b;
-  margin-bottom: 5px;
-}
-</style>
+    button {
+      border: none;
+      border-radius: 20px;
+      padding: 10px 14px;
+      background: #ff4081;
+      color: white;
+      cursor: pointer;
+    }
+  </style>
 </head>
 
 <body>
 
-<div class="card login" id="loginCard">
-  <h1>💬 Texting Compiler<br>of The Big 2026</h1>
-  <input id="username" placeholder="your name">
-  <input id="passcode" placeholder="secret code">
-  <button onclick="login()">unlock 💖</button>
-  <div class="error" id="error"></div>
+<div class="app">
+  <header>💬 Texting Compiler of The Big 2026</header>
+
+  <div id="messages"></div>
+
+  <footer>
+    <input id="text" placeholder="type something cute..." />
+    <button onclick="sendMessage()">➤</button>
+  </footer>
 </div>
 
-<div class="card" id="chatCard">
-  <h1>💗 us only 💗</h1>
+<script type="module">
+  // Firebase core
+  import { initializeApp } from "https://www.gstatic.com/firebasejs/12.8.0/firebase-app.js";
+  import { getFirestore, collection, addDoc, onSnapshot, query, orderBy } 
+  from "https://www.gstatic.com/firebasejs/12.8.0/firebase-firestore.js";
 
-  <div class="spotify" id="spotifyStatus">🎧 not listening</div>
-  <input placeholder="set spotify status" id="spotifyInput" onkeydown="setSpotify(event)">
+  // 🔥 YOUR FIREBASE CONFIG
+  const firebaseConfig = {
+    apiKey: "AIzaSyBNnMLk6boXVhhfOlelHb0vRyNN5u7qfZ0",
+    authDomain: "texting-compiler-big-2026.firebaseapp.com",
+    projectId: "texting-compiler-big-2026",
+    storageBucket: "texting-compiler-big-2026.firebasestorage.app",
+    messagingSenderId: "114135786743",
+    appId: "1:114135786743:web:de0427b16d146536639ff2"
+  };
 
-  <div class="chat" id="chat"></div>
+  // Init
+  const app = initializeApp(firebaseConfig);
+  const db = getFirestore(app);
 
-  <div class="controls">
-    <input id="msgInput" placeholder="text him 💕">
-    <button onclick="sendMsg()">➤</button>
-  </div>
+  // 💕 CHANGE THIS NAME ON EACH PERSON’S DEVICE
+  const myName = "akshayaa"; 
+  const hisName = "Vishnuuu";
 
-  <input type="file" accept="image/*" onchange="sendPhoto(event)">
-</div>
+  const messagesRef = collection(db, "messages");
 
-<script>
-const ALLOWED_USERS = ["akshayaaa", "Vishnuuu"];
-const CHAT_PASSCODE = "big2026";
+  // Send message
+  window.sendMessage = async () => {
+    const input = document.getElementById("text");
+    if (!input.value) return;
 
-let currentUser = "";
-let seenTimeout;
+    await addDoc(messagesRef, {
+      text: input.value,
+      sender: myName,
+      time: Date.now()
+    });
 
-function login() {
-  const name = username.value.trim();
-  const code = passcode.value.trim();
+    input.value = "";
+  };
 
-  if (!ALLOWED_USERS.includes(name) || code !== CHAT_PASSCODE) {
-    error.innerText = "not allowed 💔";
-    return;
-  }
+  // Receive messages (live)
+  const q = query(messagesRef, orderBy("time"));
 
-  currentUser = name;
-  loginCard.style.display = "none";
-  chatCard.style.display = "flex";
-}
+  onSnapshot(q, (snapshot) => {
+    const box = document.getElementById("messages");
+    box.innerHTML = "";
 
-function sendMsg() {
-  if (!msgInput.value) return;
+    snapshot.forEach((doc) => {
+      const msg = doc.data();
+      const div = document.createElement("div");
+      div.classList.add("msg");
 
-  const msg = document.createElement("div");
-  msg.className = "msg me";
-  msg.innerHTML = msgInput.value + " 💕";
-  chat.appendChild(msg);
+      if (msg.sender === myName) {
+        div.classList.add("me");
+      } else {
+        div.classList.add("him");
+      }
 
-  const seen = document.createElement("div");
-  seen.className = "seen";
-  seen.innerText = "seen 👀";
-  msg.appendChild(seen);
+      div.textContent = msg.text;
+      box.appendChild(div);
+    });
 
-  msgInput.value = "";
-  chat.scrollTop = chat.scrollHeight;
-}
-
-function sendPhoto(e) {
-  const file = e.target.files[0];
-  const img = document.createElement("img");
-  img.src = URL.createObjectURL(file);
-  img.style.width = "120px";
-  img.style.borderRadius = "15px";
-
-  const msg = document.createElement("div");
-  msg.className = "msg me";
-  msg.appendChild(img);
-  chat.appendChild(msg);
-  chat.scrollTop = chat.scrollHeight;
-}
-
-function setSpotify(e) {
-  if (e.key === "Enter") {
-    spotifyStatus.innerText = "🎧 listening to: " + spotifyInput.value;
-    spotifyInput.value = "";
-  }
-}
+    box.scrollTop = box.scrollHeight;
+  });
 </script>
 
 </body>
 </html>
+
 
 
